@@ -127,8 +127,9 @@ export default class TimeSeries {
     delete this.stack;
     delete this.bars.show;
 
+    const objectRegex = /^(\S+)\s+(\{object.+\})$/;
+
     if (wildcard) {
-      const objectRegex = /^(\S+)\s+(\{object.+\})$/;
       const match = objectRegex.exec(this.alias);
       if (match) {
         this.identifier = match[2];

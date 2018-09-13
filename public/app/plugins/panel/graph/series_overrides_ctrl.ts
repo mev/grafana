@@ -82,7 +82,7 @@ export function SeriesOverridesCtrl($scope, $element, popoverSrv) {
     return _.concat(extendedHash, hash);
   };
 
-  $scope.updateCurrentOverrides = () => {
+  $scope.getWildcardSeriesNames = () => {
     return _.map($scope.ctrl.groupedList, seriesGroup => {
       return seriesGroup;
     });
