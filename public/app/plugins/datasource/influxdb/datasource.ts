@@ -39,7 +39,35 @@ export default class InfluxDatasource {
     this.responseParser = new ResponseParser();
   }
 
+  selectDownsampling(from, to, dpcount) {
+    let selector;
+
+    if (Math.floor((to - from) / 86400000) >= dpcount) {
+      // count of 1d intervals
+      selector = '_1d';
+    } else if (Math.floor((to - from) / 18000000) >= dpcount) {
+      // count of 5h intervals
+      selector = '_5h';
+    } else if (Math.floor((to - from) / 3600000) >= dpcount) {
+      // count of 1h intervals
+      selector = '_1h';
+    } else if (Math.floor((to - from) / 900000) >= dpcount) {
+      // count of 15m intervals
+      selector = '_15m';
+    } else if (Math.floor((to - from) / 240000) >= dpcount) {
+      // count of 4m intervals
+      selector = '_4m';
+    } else if (Math.floor((to - from) / 60000) >= dpcount) {
+      // count of 1m intervals
+      selector = '_1m';
+    }
+
+    return selector;
+  }
+
   query(options) {
+    let selector;
+
     let timeFilter = this.getTimeFilter(options);
     const scopedVars = options.scopedVars;
     const targets = _.cloneDeep(options.targets);
@@ -53,6 +81,11 @@ export default class InfluxDatasource {
       }
 
       queryTargets.push(target);
+
+      if (target.dpcount) {
+        selector = this.selectDownsampling(options.range.from._i, options.range.to._i, target.dpcount);
+        target.measurement = target.measurement + selector;
+      }
 
       // backward compatibility
       scopedVars.interval = scopedVars.__interval;
